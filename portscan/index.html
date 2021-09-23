@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Port Scanner</title>
+</head>
+ 
+<body>
+IPs with 18622 port open:
+<script>
+    scanRemoteScanServices();    
+    function scanRemoteScanServices(){
+        host = document.location.hostname;
+        prefix = host.split(".").slice(0,3).join(".") + ".";
+        open_iplist = [];
+        completed_list = [];
+        for (var i=1; i<255; i++){
+            var ip = prefix + i;
+            makeRequest(ip, open_iplist, completed_list);
+        }
+    }
+    
+    function makeRequest(ip, open_iplist, completed_list){
+        var url = "http://"+ip+":18622";
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url);
+        xhr.timeout = 500;
+        xhr.onreadystatechange = function(){
+            if(xhr.readyState === 4){
+                console.log(ip);
+                console.log(xhr.status);
+                completed_list.push(ip);
+                if (xhr.status == 200){
+                    open_iplist.push(ip);
+                }
+                if (completed_list.length==254) {
+                    console.log(open_iplist);
+                    display_open_iplist(open_iplist);
+                }
+            }
+        }
+        xhr.send();
+    }
+    
+    function display_open_iplist(open_iplist){
+        var list = document.createElement("ul")
+        for (var i=0;i<open_iplist.length;i++){
+            var ip = open_iplist[i];
+            var item = document.createElement("li")
+            item.innerText = ip;
+            list.append(item)
+        }
+        var body = document.getElementsByTagName("body")[0]
+        body.append(list);
+    }
+    
+</script>
+</body>
+ 
+</html>
